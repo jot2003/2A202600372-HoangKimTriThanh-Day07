@@ -2,7 +2,7 @@
 
 **Họ tên:** Hoàng Kim Trí Thành  
 **MSSV:** 2A202600372  
-**Nhóm:** Nhóm Data Foundations  
+**Nhóm:** E3-C401  
 **Ngày:** 10/04/2026
 
 ---
@@ -77,7 +77,7 @@ Ngoài ra, dù chỉ dùng một nguồn chính, file sách đủ dài và có c
 
 ### Baseline Analysis
 
-Vai trò của em trong nhóm là **Thành viên 1 - Baseline (đối chứng)**.
+Vai trò của em trong nhóm là **Hoàng Kim Trí Thành - Baseline (đối chứng)**.
 
 Em dùng fixed-size strategy để làm mốc so sánh với các chiến thuật “thông minh” hơn trong nhóm (heading-aware, granular, context-heavy, metadata-focused). Em có chạy sweep nhỏ để xem trong họ fixed-size thì cấu hình nào ổn nhất.
 
