@@ -12,20 +12,20 @@
 ### Cosine Similarity (Ex 1.1)
 
 **High cosine similarity nghĩa là gì?**  
-High cosine similarity nghĩa là hai câu có hướng vector gần nhau trong không gian embedding, tức là nội dung/ngữ nghĩa gần nhau. Điểm càng gần 1 thì mức tương đồng ngữ nghĩa càng cao.
+Theo cách em hiểu, high cosine similarity nghĩa là hai đoạn text có vector gần cùng hướng, nên nội dung ngữ nghĩa khá giống nhau. Điểm càng gần 1 thì mức tương đồng càng cao.
 
 **Ví dụ HIGH similarity:**
 - Sentence A: "Python supports object-oriented programming."
 - Sentence B: "Python includes object-oriented features."
-- Tại sao tương đồng: Cùng nói về cùng một ý chính là đặc tính OOP của Python.
+- Tại sao tương đồng: Cả hai cùng nói về đặc tính OOP của Python, chỉ khác cách diễn đạt.
 
 **Ví dụ LOW similarity:**
 - Sentence A: "Customer support tickets should be prioritized by urgency."
 - Sentence B: "Bananas are rich in potassium."
-- Tại sao khác: Hai câu thuộc hai domain hoàn toàn khác nhau, không chia sẻ ngữ cảnh.
+- Tại sao khác: Hai câu thuộc hai ngữ cảnh hoàn toàn khác, gần như không có giao nhau về ý nghĩa.
 
 **Tại sao cosine similarity được ưu tiên hơn Euclidean distance cho text embeddings?**  
-Cosine similarity tập trung vào hướng vector nên phản ánh tốt hơn mức tương đồng ngữ nghĩa, ít bị ảnh hưởng bởi độ lớn vector. Với text embeddings, hướng thường quan trọng hơn khoảng cách tuyệt đối theo trục tọa độ.
+Với embedding, độ lớn vector có thể bị ảnh hưởng bởi nhiều yếu tố kỹ thuật, nên so sánh hướng vector sẽ ổn định và hợp lý hơn khi đánh giá nghĩa. Vì vậy cosine similarity thường phản ánh semantic relevance tốt hơn Euclidean distance.
 
 ### Chunking Math (Ex 1.2)
 
@@ -37,7 +37,7 @@ Cosine similarity tập trung vào hướng vector nên phản ánh tốt hơn m
 **Đáp án: 23 chunks**
 
 **Nếu overlap tăng lên 100, chunk count thay đổi thế nào? Tại sao muốn overlap nhiều hơn?**  
-Khi overlap tăng, bước nhảy (`chunk_size - overlap`) giảm nên số chunk tăng. Overlap cao giúp giữ ngữ cảnh liên tục giữa các chunk, giảm rủi ro mất ý ở ranh giới cắt.
+Khi overlap tăng, bước nhảy giảm nên số chunk tăng. Đổi lại, overlap giúp giữ ngữ cảnh liên tục giữa các chunk, đặc biệt hữu ích khi ý chính nằm sát ranh giới chunk.
 
 ---
 
@@ -48,22 +48,28 @@ Khi overlap tăng, bước nhảy (`chunk_size - overlap`) giảm nên số chun
 **Domain:** Customer discovery / startup interview với sách *The Mom Test*
 
 **Tại sao nhóm chọn domain này?**  
-Nhóm chọn *The Mom Test* vì nội dung có nhiều rule rõ ràng (compliments, fluff, commitment, advancement), rất phù hợp để đo retrieval theo query thực tế. Dù là một nguồn chính, tài liệu đủ dài và có cấu trúc theo chương để so sánh chunking strategy.
+Nhóm em chọn *The Mom Test* vì nội dung tập trung vào các nguyên tắc interview khách hàng rất rõ ràng (compliments, fluff, commitment, advancement). Tài liệu có tính thực tiễn cao, dễ tạo benchmark query và dễ đánh giá đúng/sai theo ngữ cảnh cụ thể.
+
+Ngoài ra, dù chỉ dùng một nguồn chính, file sách đủ dài và có cấu trúc chương/phần rõ, nên vẫn phù hợp để thử nhiều strategy chunking khác nhau.
 
 ### Data Inventory
 
 | # | Tên tài liệu | Nguồn | Số ký tự (xấp xỉ) | Metadata đã gán |
 |---|--------------|-------|-------------------|-----------------|
-| 1 | `The Mom Test.md` | Sách *The Mom Test* (Markdown đã chuyển đổi) | ~60,000+ | `source`, `chapter`, `topic`, `lang` |
+| 1 | `the_mom_test_part1_foundations.md` | Tách từ `The Mom Test.md` | ~28,500 | `chapter`, `source`, `language`, `domain`, `content_type` |
+| 2 | `the_mom_test_part2_bad_data.md` | Tách từ `The Mom Test.md` | ~29,900 | `chapter`, `source`, `language`, `domain`, `content_type` |
+| 3 | `the_mom_test_part3_advancement.md` | Tách từ `The Mom Test.md` | ~49,200 | `chapter`, `source`, `language`, `domain`, `content_type` |
+| 4 | `the_mom_test_part4_process.md` | Tách từ `The Mom Test.md` | ~49,300 | `chapter`, `source`, `language`, `domain`, `content_type` |
+| 5 | `the_mom_test_part5_recap.md` | Tách từ `The Mom Test.md` | ~23,000 | `chapter`, `source`, `language`, `domain`, `content_type` |
 
 ### Metadata Schema
 
 | Trường metadata | Kiểu | Ví dụ giá trị | Tại sao hữu ích cho retrieval? |
 |----------------|------|---------------|-------------------------------|
-| `source` | string | `The Mom Test.md` | Truy vết nguồn chunk |
-| `chapter` | string | `chapter_03` | Lọc theo phần nội dung |
-| `topic` | string | `compliments`, `advancement` | Tăng độ chính xác cho query hẹp |
-| `lang` | string | `en` | Đồng bộ ngôn ngữ tài liệu |
+| `chapter` | string | `the_mom_test_part3_advancement` | Lọc theo phạm vi chương |
+| `content_type` | string | `rule`, `compliment`, `fluff`, `pitching`, `advancement` | Lọc theo intent của câu hỏi |
+| `source` | string | `data/the_mom_test_part2_bad_data.md` | Truy vết nguồn chunk |
+| `language` | string | `en` | Đồng bộ ngôn ngữ dữ liệu |
 
 ---
 
@@ -71,73 +77,75 @@ Nhóm chọn *The Mom Test* vì nội dung có nhiều rule rõ ràng (complimen
 
 ### Baseline Analysis
 
-Vai trò của em trong nhóm: **Thành viên 1 - Baseline (đối chứng)**.
+Vai trò của em trong nhóm là **Thành viên 1 - Baseline (đối chứng)**.
+
+Em dùng fixed-size strategy để làm mốc so sánh với các chiến thuật “thông minh” hơn trong nhóm (heading-aware, granular, context-heavy, metadata-focused). Em có chạy sweep nhỏ để xem trong họ fixed-size thì cấu hình nào ổn nhất.
 
 | Cấu hình | Chunk Count | Avg Top-1 Score | Relevant Top-3 (/5) | Nhận xét |
 |----------|-------------|-----------------|----------------------|---------|
-| Fixed-size 220, overlap 10% | 160 | 0.3893 | 3/5 | Chunk nhỏ, dễ mất ngữ cảnh |
-| **Fixed-size 300, overlap 10% (baseline chính thức)** | 117 | 0.3696 | **4/5** | Cân bằng tốt nhất |
-| Fixed-size 420, overlap 10% | 84 | 0.3602 | 2/5 | Chunk lớn, nhiễu nội dung |
+| Fixed-size 220, overlap 10% | 160 | 0.3893 | 3/5 | Chunk nhỏ, nhiều đoạn bị thiếu ngữ cảnh |
+| **Fixed-size 300, overlap 10% (baseline chính thức)** | 117 | 0.3696 | **4/5** | Cân bằng tốt nhất giữa độ phủ và coherence |
+| Fixed-size 420, overlap 10% | 84 | 0.3602 | 2/5 | Chunk lớn, dễ nhiễu thông tin không liên quan |
 
 ### Strategy Của Em
 
 **Loại:** `FixedSizeChunker` (`chunk_tokens=300`, `overlap=10%`)
 
 **Mô tả cách hoạt động:**  
-Em chia theo fixed-size trên token để tạo đường cơ sở ổn định cho cả nhóm. Với sách dài như *The Mom Test*, fixed-size giúp kiểm soát số chunk và chi phí embedding, đồng thời làm mốc so sánh công bằng với strategy theo heading/sentence của các bạn khác.
+Em tách tài liệu thành các chunk theo số token cố định, sau đó cho chồng lấp 10% để giữ liên kết giữa các đoạn sát biên. Cách này dễ tái lập, dễ debug, và đặc biệt phù hợp làm baseline vì tham số rõ ràng.
 
 **Tại sao em chọn strategy này cho domain nhóm?**  
-Đây là baseline đúng phân công, giúp nhóm đánh giá khách quan: các chiến thuật thông minh hơn tốt hơn baseline ở điểm nào. Ngoài ra em có chạy sweep nhỏ để xác nhận `300 + 10%` là cấu hình fixed-size phù hợp nhất cho bộ benchmark.
+Vì nhóm cần một mốc đối chứng ổn định trước khi kết luận strategy khác tốt hơn ở điểm nào. Nếu baseline đã được setup rõ (300/10%), mọi khác biệt ở các strategy còn lại sẽ dễ giải thích hơn.
 
-### So Sánh: Strategy của em vs Baseline
+### So Sánh: Strategy của em vs bộ query nhóm
 
 | Query | Top-1 score | Relevant top-3? | Ghi chú |
 |-------|-------------|-----------------|--------|
 | Core rule của The Mom Test | 0.3900 | Có | Trúng đoạn định nghĩa The Mom Test |
-| Compliments là vàng giả | 0.4012 | Có | Trúng đúng phần compliments |
-| Neo giữ thông tin mơ hồ | 0.3363 | Không | Fail case chính |
+| Compliments là vàng giả | 0.4012 | Có | Trúng đúng phần compliments/fibs |
+| Neo giữ thông tin mơ hồ | 0.3363 | Không | Failure case chính |
 | Advancement thành công | 0.4510 | Có | Trúng cụm commitment/advancement |
-| Lỡ pitch quá sớm | 0.2692 | Có | Có ngữ cảnh đúng nhưng điểm thấp |
+| Lỡ pitch quá sớm | 0.2692 | Có | Trúng ý chính nhưng score chưa cao |
 
 ### So Sánh Với Thành Viên Khác
 
 | Thành viên | Strategy | Retrieval Score (/10) | Điểm mạnh | Điểm yếu |
 |-----------|----------|----------------------|-----------|----------|
 | Hoàng Kim Trí Thành | FixedSizeChunker (300, 10%) | 8/10 (4/5 relevant) | Ổn định, làm đối chứng tốt | Có thể cắt giữa rule |
-| Thành viên 2 | Structure-aware (Heading) | TBD | Giữ cấu trúc chương | Cần xử lý section dài |
-| Thành viên 3 | Granular (Paragraph/small chunk) | TBD | Bám chi tiết | Dễ mất context |
-| Thành viên 4 | Context-heavy (large chunk) | TBD | Giữ nhiều ngữ cảnh | Nhiễu |
-| Thành viên 5 | Metadata-focused | TBD | Lọc query hẹp tốt | Filter quá chặt giảm recall |
+| Phạm Quốc Dũng | SentenceChunker (granular, 1 câu/chunk) | 8/10 | Match tốt các câu ngắn chứa tín hiệu rõ | Context mỏng khi cần tổng hợp nhiều câu |
+| Quách Gia Được | RecursiveChunker (structural, chunk ~1200) | 4/5 relevant (chưa quy đổi điểm nhóm cuối) | Chunk mạch lạc, giữ ý theo đoạn/chương | Score tuyệt đối chưa cao nếu ép threshold 0.7 |
+| Đặng Đinh Tú Anh | FixedSizeChunker (1000, overlap=0) | 7/10 (3/5 relevant) | Mỗi chunk chứa nhiều context, thuận lợi cho câu hỏi tổng quát | Chunk quá lớn làm nhiễu chủ đề, query mơ hồ dễ trượt |
+| Thành Nam | RecursiveChunker + Metadata Filter (member5 run) | 1/5 relevant (chưa quy đổi điểm nhóm cuối) | Có cơ chế lọc theo `content_type` trước khi search | Metadata chưa đủ chính xác nên filter chưa cải thiện kết quả |
 
 **Strategy nào tốt nhất cho domain này? Tại sao?**  
-Ở góc nhìn baseline, fixed-size `300 + 10%` đang cân bằng tốt nhất trong nhóm fixed-size. Tuy nhiên với sách có cấu trúc rõ như *The Mom Test*, em kỳ vọng strategy theo heading và strategy metadata-focused sẽ vượt baseline ở các query theo chapter/topic.
+Theo dữ liệu hiện có, hai strategy cho kết quả ổn định nhất là baseline `FixedSize 300+10%` của em và `RecursiveChunker` của bạn Được (đều đạt 4/5 relevant ở bộ query nhóm). Strategy sentence-level của bạn Dũng cũng cho kết quả tốt với câu hỏi cần bằng chứng ngắn. Với member5 metadata-filter, kết quả hiện tại mới 1/5 relevant nên chưa thể kết luận filter mạnh hơn; nhóm cần tinh chỉnh lại metadata schema trước khi đánh giá tiếp.
 
 ---
 
 ## 4. My Approach — Cá nhân (10 điểm)
 
-Giải thích cách tiếp cận khi implement các phần chính trong package `src`.
+Phần này em mô tả ngắn gọn cách em triển khai các TODO trong `src`.
 
 ### Chunking Functions
 
 **`SentenceChunker.chunk`** — approach:  
-Sử dụng regex tách câu theo ranh giới dấu kết thúc câu, giữ dấu câu gắn với nội dung câu để không mất nghĩa. Sau đó gom N câu vào một chunk theo `max_sentences_per_chunk`. Có xử lý edge case text rỗng và loại bỏ phần tử trắng.
+Em dùng regex tách theo ranh giới câu (`.`, `!`, `?`) và giữ nguyên dấu câu trong từng sentence để không mất ngữ nghĩa. Sau đó em gom theo `max_sentences_per_chunk`. Em xử lý text rỗng và lọc phần tử trắng trước khi trả kết quả.
 
 **`RecursiveChunker.chunk` / `_split`** — approach:  
-Áp dụng đệ quy với danh sách separator theo ưu tiên. Base case là khi `len(text) <= chunk_size` hoặc không còn separator thì cắt cứng theo `chunk_size`. Khi split bằng separator hiện tại, thuật toán cố gắng ghép buffer để chunk vẫn tự nhiên, nếu quá dài thì đệ quy xuống separator tiếp theo.
+Em triển khai theo thứ tự separator ưu tiên (đoạn > dòng > câu > từ > ký tự). Base case là khi chunk đã nhỏ hơn `chunk_size` hoặc hết separator thì cắt cứng. Ý chính là tận dụng cấu trúc tự nhiên tối đa trước khi fallback sang hard split.
 
 ### EmbeddingStore
 
 **`add_documents` + `search`** — approach:  
-Mỗi document được chuẩn hóa thành record gồm `id`, `content`, `metadata`, `embedding`, sau đó lưu vào in-memory list. `search` embed query rồi tính điểm bằng dot product với từng record, sort giảm dần và lấy `top_k`.
+Em chuẩn hóa mỗi document thành record gồm `id`, `content`, `metadata`, `embedding`. Khi search, em embed query, tính score bằng dot product, sort giảm dần và lấy top-k.
 
 **`search_with_filter` + `delete_document`** — approach:  
-`search_with_filter` lọc records theo metadata trước rồi mới search (đúng theo yêu cầu lab). `delete_document` xóa toàn bộ chunk có `metadata['doc_id'] == doc_id` và trả `True/False` tùy có xóa được hay không.
+Với `search_with_filter`, em filter theo metadata trước rồi mới search để đúng yêu cầu bài. Với `delete_document`, em xóa toàn bộ chunk theo `doc_id` và trả `True/False` để phản ánh có xóa thành công hay không.
 
 ### KnowledgeBaseAgent
 
 **`answer`** — approach:  
-Agent retrieve top-k chunks từ store, ghép thành context có đánh số chunk, rồi chèn vào prompt template cùng question. Cuối cùng gọi `llm_fn(prompt)` để nhận câu trả lời grounded theo context.
+Em retrieve top-k chunks, ghép thành context có đánh số chunk, rồi build prompt yêu cầu trả lời dựa trên context. Sau đó gọi `llm_fn` để sinh câu trả lời.
 
 ### Test Results
 
@@ -161,14 +169,14 @@ pytest tests/ -v
 | 4 | Customer tickets should be triaged by severity. | Support requests are prioritized by urgency. | high | -0.0589 | Sai |
 | 5 | The capital of France is Paris. | Bananas are rich in potassium. | low | -0.2249 | Đúng |
 
-**Kết quả nào bất ngờ nhất? Điều này nói gì về cách embeddings biểu diễn nghĩa?**  
-Cặp 1 và 4 bất ngờ vì về nghĩa là gần nhau nhưng điểm vẫn thấp khi dùng mock embedding. Điều này cho thấy backend embedding ảnh hưởng trực tiếp đến quality; mock embedder phù hợp để test chức năng nhưng không phản ánh chính xác ngữ nghĩa như model thật.
+**Kết quả nào bất ngờ nhất? Điều này nói gì về embeddings?**  
+Em bất ngờ nhất ở cặp 1 và 4 vì về nghĩa thì khá gần nhưng điểm vẫn thấp. Điều này cho thấy kết quả phụ thuộc mạnh vào backend embedding. Mock embedding phù hợp để test chức năng code, nhưng không đại diện tốt cho semantic quality thật.
 
 ---
 
 ## 6. Results — Cá nhân (10 điểm)
 
-Chạy 5 benchmark queries của nhóm trên `The Mom Test.md` với cấu hình baseline của em.
+Em chạy 5 benchmark queries nhóm trên `The Mom Test.md` với cấu hình baseline của em (`FixedSize 300 + overlap 10%`, `top_k=3`, embedding `text-embedding-3-small`).
 
 ### Benchmark Queries & Gold Answers
 
@@ -192,18 +200,27 @@ Chạy 5 benchmark queries của nhóm trên `The Mom Test.md` với cấu hình
 
 **Bao nhiêu queries trả về chunk relevant trong top-3?** 4 / 5
 
+**Chấm nhanh theo rubric 2/1/0 (ước lượng):**
+- Q1: 2 điểm
+- Q2: 2 điểm
+- Q3: 0 điểm
+- Q4: 2 điểm
+- Q5: 1 điểm (relevant nhưng score thấp, câu trả lời còn ngắn)
+
+**Tổng ước lượng:** 7 / 10
+
 ---
 
 ## 7. What I Learned (5 điểm — Demo)
 
 **Điều hay nhất em học được từ thành viên khác trong nhóm:**  
-Với tài liệu dạng sách có heading rõ, strategy theo cấu trúc chương thường giữ coherence tốt hơn fixed-size ở các query chapter-specific.
+Từ bạn Dũng, em học được là sentence-level chunking rất hợp khi cần truy xuất một câu bằng chứng cụ thể. Từ bạn Tú Anh, em thấy rõ trade-off của chunk lớn: có lợi cho câu hỏi tổng quát nhưng dễ nhiễu ở câu hỏi hẹp. Từ bạn Được, em thấy recursive giữ ngữ cảnh đoạn tốt hơn nên trả lời khái niệm mạch lạc hơn baseline.
 
 **Điều hay nhất em học được từ nhóm khác (qua demo):**  
-Metadata filter thực sự hữu ích khi query nhắm đúng phạm vi; nhưng nếu filter quá chặt thì chunk đúng có thể bị loại mất.
+Nhóm khác nhấn mạnh việc không nên dùng cứng một ngưỡng score duy nhất cho mọi query, mà cần đọc thêm mức độ liên quan thực tế trong top-3. Insight này rất đúng với kết quả nhóm em, vì có những query score không cao nhưng chunk vẫn relevant.
 
 **Nếu làm lại, em sẽ thay đổi gì trong data strategy?**  
-Em sẽ chuẩn hóa topic map ngay từ đầu (`compliments`, `fluff`, `commitment`, `advancement`) và chuẩn hóa query song ngữ để giảm mismatch ngôn ngữ.
+Em sẽ chuẩn hóa metadata ở cấp chunk ngay từ đầu theo schema nhóm (`chapter`, `content_type`, `source`, `language`) và ép mọi thành viên ingest cùng format để so sánh công bằng hơn. Ngoài ra, em sẽ chuẩn bị sẵn cặp query VI/EN tương đương để giảm mismatch ngôn ngữ khi dữ liệu gốc là tiếng Anh.
 
 ---
 
@@ -213,10 +230,10 @@ Em sẽ chuẩn hóa topic map ngay từ đầu (`compliments`, `fluff`, `commit
 |----------|------|-------------------|
 | Warm-up | Cá nhân | 5 / 5 |
 | Document selection | Nhóm | 8 / 10 |
-| Chunking strategy | Nhóm | 13 / 15 |
+| Chunking strategy | Nhóm | 14 / 15 |
 | My approach | Cá nhân | 10 / 10 |
 | Similarity predictions | Cá nhân | 4 / 5 |
 | Results | Cá nhân | 8 / 10 |
 | Core implementation (tests) | Cá nhân | 30 / 30 |
 | Demo | Nhóm | 4 / 5 |
-| **Tổng** | | **86 / 100 (self-assessment)** |
+| **Tổng** | | **87 / 100 (sẽ cập nhật lại sau khi nhóm chốt đủ số liệu)** |
