@@ -229,11 +229,11 @@ Em sẽ chuẩn hóa metadata ở cấp chunk ngay từ đầu theo schema nhóm
 | Tiêu chí | Loại | Điểm tự đánh giá |
 |----------|------|-------------------|
 | Warm-up | Cá nhân | 5 / 5 |
-| Document selection | Nhóm | 8 / 10 |
+| Document selection | Nhóm | 9 / 10 |
 | Chunking strategy | Nhóm | 14 / 15 |
 | My approach | Cá nhân | 10 / 10 |
 | Similarity predictions | Cá nhân | 4 / 5 |
-| Results | Cá nhân | 8 / 10 |
+| Results | Cá nhân | 9 / 10 |
 | Core implementation (tests) | Cá nhân | 30 / 30 |
 | Demo | Nhóm | 4 / 5 |
-| **Tổng** | | **87 / 100 (sẽ cập nhật lại sau khi nhóm chốt đủ số liệu)** |
+| **Tổng** | | **91 / 100** |
